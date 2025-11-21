@@ -2,90 +2,51 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "yudao-backend"
-        CONTAINER_NAME = "yudao-app"
+        HARBOR_HOST     = '220.182.11.205:8086'
+        HARBOR_PROJECT  = 'yudao'
+        IMAGE_NAME      = 'yudao-backend'
+        FULL_IMAGE_NAME = "${HARBOR_HOST}/${HARBOR_PROJECT}/${IMAGE_NAME}:latest"
     }
 
     stages {
-        stage('Verify pom.xml') {
-            steps {
-                sh '''
-                    echo "=== Current Directory ==="
-                    pwd
-                    echo "=== List Files in Workspace ==="
-                    ls -la
-                    echo "=== Check for pom.xml ==="
-                    if [ -f pom.xml ]; then
-                        echo "✅ pom.xml found!"
-                    else
-                        echo "❌ pom.xml NOT found!"
-                        exit 1
-                    fi
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build JAR with Maven in Docker') {
+        stage('Build JAR') {
             steps {
                 script {
-                    // 复用 docker-compose.yml 中定义的 ./m2 目录
-                    // Jenkins 容器内工作区: /var/jenkins_home/workspace/...
-                    // 主机项目结构: ./m2 与 ./jenkins_home 同级
                     def m2Path = "${WORKSPACE}/../m2"
                     docker.image('maven:3.8.6-openjdk-8').inside("-v ${m2Path}:/root/.m2") {
-                        sh 'mvn --version'
                         sh 'mvn clean package -DskipTests'
-                        sh '''
-                            echo "=== JAR Files in yudao-server/target/ ==="
-                            ls -l yudao-server/target/
-                            cp yudao-server/target/yudao-server.jar ./app.jar
-                            ls -l ./app.jar
-                        '''
+                        sh 'cp yudao-server/target/yudao-server.jar ./app.jar'
                     }
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
-                sh "docker build -f yudao-server/Dockerfile -t ${IMAGE_NAME} ."
-            }
-        }
-
-        stage('Run Container') {
-            steps {
-                sh "docker stop ${CONTAINER_NAME} || true"
-                sh "docker rm ${CONTAINER_NAME} || true"
-                sh """
-                    docker run -d \\
-                      --name ${CONTAINER_NAME} \\
-                      -p 48080:48080 \\
-                      -e SPRING_PROFILES_ACTIVE=dev \\
-                      ${IMAGE_NAME}
-                """
-            }
-        }
-
-        stage('Health Check') {
-            steps {
-                sh 'sleep 15'
-                sh 'curl -f http://localhost:48080/admin-api/system/health || exit 1'
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'harbor-registry',
+                        usernameVariable: 'HARBOR_USER',
+                        passwordVariable: 'HARBOR_PASS'
+                    )]) {
+                        sh "docker build -f yudao-server/Dockerfile -t ${FULL_IMAGE_NAME} ."
+                        sh "echo ${HARBOR_PASS} | docker login ${HARBOR_HOST} -u ${HARBOR_USER} --password-stdin"
+                        sh "docker push ${FULL_IMAGE_NAME}"
+                        sh "docker logout ${HARBOR_HOST}"
+                    }
+                }
             }
         }
     }
 
     post {
-        always {
-            echo "Pipeline completed."
-        }
-        failure {
-            echo "Pipeline failed!"
-        }
+        success { echo "✅ 镜像已成功推送至 Harbor: ${FULL_IMAGE_NAME}" }
+        failure { echo "❌ 构建或推送失败" }
     }
 }
