@@ -62,7 +62,13 @@ pipeline {
             steps {
                 sh "docker stop ${CONTAINER_NAME} || true"
                 sh "docker rm ${CONTAINER_NAME} || true"
-                sh "docker run -d --name ${CONTAINER_NAME} -p 48080:48080 ${IMAGE_NAME}"
+                sh """
+                    docker run -d \\
+                      --name ${CONTAINER_NAME} \\
+                      -p 48080:48080 \\
+                      -e SPRING_PROFILES_ACTIVE=dev \\
+                      ${IMAGE_NAME}
+                """
             }
         }
 
