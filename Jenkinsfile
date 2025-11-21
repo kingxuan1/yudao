@@ -43,6 +43,22 @@ pipeline {
                 }
             }
         }
+
+        stage('Pull Image Only') {
+            steps {
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'lz服务器',
+                            execCommand: '''
+                                cd /opt/yudao
+                                docker compose pull
+                            '''
+                        )
+                    ]
+                )
+            }
+        }
     }
 
     post {
