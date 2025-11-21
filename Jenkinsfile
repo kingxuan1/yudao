@@ -6,6 +6,24 @@ pipeline {
         CONTAINER_NAME = "yudao-app"
     }
 
+    stage('Verify pom.xml') {
+        steps {
+            sh '''
+                echo "=== Current Directory ==="
+                pwd
+                echo "=== List Files ==="
+                ls -la
+                echo "=== Check for pom.xml ==="
+                if [ -f pom.xml ]; then
+                    echo "✅ pom.xml found!"
+                else
+                    echo "❌ pom.xml NOT found!"
+                    exit 1
+                fi
+            '''
+        }
+    }
+
     stages {
         stage('Checkout') {
             steps {
