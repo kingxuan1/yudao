@@ -82,7 +82,7 @@ public class DefaultController {
      */
     @RequestMapping(value = { "/test" })
     @PermitAll
-    public CommonResult<Boolean> test1(HttpServletRequest request) {
+    public CommonResult<Boolean> test(HttpServletRequest request) {
         // 打印查询参数
         log.info("Query: {}", ServletUtils.getParamMap(request));
         // 打印请求头
