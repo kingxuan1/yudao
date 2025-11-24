@@ -76,6 +76,6 @@ pipeline {
 
     post {
         success { echo "✅ 镜像已成功推送至 Harbor: ${FULL_IMAGE_NAME}" }
-        failure { echo "❌ 构建或推送失败111" }
+        failure { echo "❌ 构建或推送失败11" }
     }
 }
