@@ -63,11 +63,11 @@ pipeline {
                             configName: 'lz服务器',
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: 'lombok.config',  // ← 必须存在
+                                    sourceFiles: 'Jenkinsfile',  // ← 必须存在
                                     remoteDirectory: '',       // 可选
                                     execCommand: '''
                                         cd /opt/yudao
-                                        docker compose pull
+                                        sudo docker compose pull
                                     '''
                                 )
                             ]
