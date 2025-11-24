@@ -44,16 +44,16 @@ pipeline {
             }
         }
 
-        stage('Test Pull') {
-            steps {
-                sh '''
-                    ssh -p 3925 SupUsr@220.182.11.205 '
-                        cd /home/SupUsr/yudao &&
-                        docker compose pull
-                    '
-                '''
-            }
-        }
+//         stage('Test Pull') {
+//             steps {
+//                 sh '''
+//                     ssh -p 3925 SupUsr@220.182.11.205 '
+//                         cd /home/SupUsr/yudao &&
+//                         docker compose pull
+//                     '
+//                 '''
+//             }
+//         }
 
         stage('Pull Image Only') {
             steps {
