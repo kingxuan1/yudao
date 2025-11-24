@@ -52,7 +52,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no \
                             -p 3925 \
                             SupUsr@220.182.11.205 \
-                            "cd /opt/yudao && /usr/bin/docker compose pull"
+                            "cd /opt/yudao && /usr/bin/docker compose pull && /usr/bin/docker compose up -d"
                         echo "✅ 镜像拉取成功！"
                     '''
                 }
