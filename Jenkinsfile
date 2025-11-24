@@ -44,23 +44,13 @@ pipeline {
             }
         }
 
-//         stage('Test Pull') {
-//             steps {
-//                 sh '''
-//                     ssh -p 3925 SupUsr@220.182.11.205 '
-//                         cd /home/SupUsr/yudao &&
-//                         docker compose pull
-//                     '
-//                 '''
-//             }
-//         }
-
         stage('Pull Image Only') {
             steps {
                 sshagent(['lz-server-key']) {
                     sh '''
                         set -e  # 遇到错误立即退出
                         ssh -o StrictHostKeyChecking=no \
+                            -p 3925 \
                             centos@220.182.11.205 \
                             "cd /opt/yudao && /usr/bin/docker compose pull"
                         echo "✅ 镜像拉取成功！"
@@ -73,6 +63,6 @@ pipeline {
 
     post {
         success { echo "✅ 镜像已成功推送至 Harbor: ${FULL_IMAGE_NAME}" }
-        failure { echo "❌ 构建或推送失败1" }
+        failure { echo "❌ 构建或推送失败" }
     }
 }
