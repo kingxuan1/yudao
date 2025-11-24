@@ -51,7 +51,7 @@ pipeline {
                         set -e  # 遇到错误立即退出
                         ssh -o StrictHostKeyChecking=no \
                             -p 3925 \
-                            centos@220.182.11.205 \
+                            SupUsr@220.182.11.205 \
                             "cd /opt/yudao && /usr/bin/docker compose pull"
                         echo "✅ 镜像拉取成功！"
                     '''
