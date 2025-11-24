@@ -57,25 +57,18 @@ pipeline {
 
         stage('Pull Image Only') {
             steps {
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'lz服务器',
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: 'Jenkinsfile',  // ← 必须存在
-                                    remoteDirectory: '',       // 可选
-                                    execCommand: '''
-                                        cd /opt/yudao
-                                        sudo docker compose pull
-                                    '''
-                                )
-                            ]
-                        )
-                    ]
-                )
+                sshagent(['lz-server-key']) {
+                    sh '''
+                        set -e  # 遇到错误立即退出
+                        ssh -o StrictHostKeyChecking=no \
+                            centos@220.182.11.205 \
+                            "cd /opt/yudao && /usr/bin/docker compose pull"
+                        echo "✅ 镜像拉取成功！"
+                    '''
+                }
             }
         }
+
     }
 
     post {
