@@ -1,6 +1,19 @@
 pipeline {
     agent any
 
+    triggers {
+        GenericTrigger(
+            genericVariables: [
+                [key: 'ref', value: '$.ref']
+            ],
+            causeString: 'Triggered by GitHub push',
+            token: 'yudao-github-auto',  // ← 自定义 token，记住它！
+            printContributedVariables: true,
+            printPostContent: false,
+            silentResponse: false
+        )
+    }
+
     environment {
         HARBOR_HOST     = '220.182.11.205:8086'
         HARBOR_PROJECT  = 'yudao'
