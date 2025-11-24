@@ -74,8 +74,38 @@ pipeline {
 
     }
 
-    post {
-        success { echo "✅ 镜像已成功推送至 Harbor: ${FULL_IMAGE_NAME}" }
-        failure { echo "❌ 构建或推送失败111" }
-    }
+     post {
+            success {
+                echo "✅ 镜像已成功推送至 Harbor: ${FULL_IMAGE_NAME}"
+                emailext (
+                    subject: "✅ [SUCCESS] Pipeline 成功: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: """
+                        构建成功！
+                        - 项目: ${env.JOB_NAME}
+                        - 构建号: ${env.BUILD_NUMBER}
+                        - Git 分支: ${env.GIT_BRANCH}
+                        - 镜像: ${FULL_IMAGE_NAME}
+                        - 查看报告: ${env.BUILD_URL}
+                    """,
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: '2755395209@qq.com'  // ← 替换成你的邮箱
+                )
+            }
+            failure {
+                echo "❌ 构建或推送失败"
+                emailext (
+                    subject: "❌ [FAILED] Pipeline 失败: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                    body: """
+                        构建失败！
+                        - 项目: ${env.JOB_NAME}
+                        - 构建号: ${env.BUILD_NUMBER}
+                        - Git 分支: ${env.GIT_BRANCH}
+                        - 失败阶段: ${env.STAGE_NAME}
+                        - 查看日志: ${env.BUILD_URL}console
+                    """,
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                    to: '2755395209@qq.com'  // ← 替换成你的邮箱
+                )
+            }
+     }
 }
