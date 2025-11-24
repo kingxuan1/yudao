@@ -51,7 +51,7 @@ pipeline {
                         sshPublisherDesc(
                             configName: 'lz服务器',
                             execCommand: '''
-                                cd /opt/yudao
+                                cd /home/SupUsr/yudao
                                 docker compose pull
                             '''
                         )
