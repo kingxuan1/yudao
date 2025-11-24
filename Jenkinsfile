@@ -50,10 +50,16 @@ pipeline {
                     publishers: [
                         sshPublisherDesc(
                             configName: 'lz服务器',
-                            execCommand: '''
-                                cd /home/SupUsr/yudao
-                                docker compose pull
-                            '''
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: 'lombok.config',  // ← 必须存在
+                                    remoteDirectory: '',       // 可选
+                                    execCommand: '''
+                                        cd /home/SupUsr/yudao
+                                        docker compose pull
+                                    '''
+                                )
+                            ]
                         )
                     ]
                 )
