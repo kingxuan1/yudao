@@ -66,7 +66,7 @@ pipeline {
                                     sourceFiles: 'lombok.config',  // ← 必须存在
                                     remoteDirectory: '',       // 可选
                                     execCommand: '''
-                                        cd /home/SupUsr/yudao
+                                        cd /opt/yudao
                                         docker compose pull
                                     '''
                                 )
